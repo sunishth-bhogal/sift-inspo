@@ -1,0 +1,68 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Sift — Dashboard</title>
+  <link rel="stylesheet" href="dashboard.css" />
+</head>
+<body>
+  <nav class="top">
+    <div class="brand">
+      <div class="logo">✦</div>
+      <div>
+        <div class="name">Sift</div>
+        <div class="tag">Turn your scrolling into research</div>
+      </div>
+    </div>
+    <div class="tabs">
+      <button data-tab="sessions" class="active">Sessions</button>
+      <button data-tab="saves">Swipe file</button>
+      <button data-tab="privacy">Privacy</button>
+    </div>
+  </nav>
+
+  <main>
+    <section id="tab-sessions" class="tab">
+      <div class="empty" id="sessionsEmpty" hidden>
+        No sessions yet. Open X or LinkedIn, click the Sift icon, and flip Research Mode on.
+      </div>
+      <div id="sessionsList" class="list"></div>
+      <div id="sessionDetail" class="detail"></div>
+    </section>
+
+    <section id="tab-saves" class="tab" hidden>
+      <div class="empty" id="savesEmpty" hidden>
+        No saves yet. Hover a post on X or LinkedIn and click “Save to Sift.”
+      </div>
+      <div id="savesList" class="saves-grid"></div>
+    </section>
+
+    <section id="tab-privacy" class="tab" hidden>
+      <h2>What Sift captures</h2>
+      <ul>
+        <li>Visible post text + author handle on X and LinkedIn</li>
+        <li>Dwell time (how long a post stayed on screen)</li>
+        <li>Clicks you make inside post containers (comments / profile / link)</li>
+        <li>Post URLs for later review</li>
+      </ul>
+      <h2>What Sift never captures</h2>
+      <ul>
+        <li>DMs, settings pages, or anything on a blocked path</li>
+        <li>Keystrokes outside post-action buttons</li>
+        <li>Screenshots (not in this version — opt-in only in the future)</li>
+      </ul>
+      <h2>Where it lives</h2>
+      <p>All data lives in <code>chrome.storage.local</code> on this device. There is no server. Nothing is uploaded.</p>
+
+      <div class="row">
+        <button id="exportBtn" class="primary">Export JSON</button>
+        <button id="wipeBtn" class="danger">Wipe all data</button>
+      </div>
+    </section>
+  </main>
+
+  <script src="../lib/storage.js"></script>
+  <script src="../lib/analyzer.js"></script>
+  <script src="dashboard.js"></script>
+</body>
+</html>

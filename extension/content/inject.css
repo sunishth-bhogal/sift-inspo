@@ -1,0 +1,95 @@
+/* Sift — injected UI styles. Prefixed with .sift- to avoid collisions. */
+
+.sift-save-btn {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    z-index: 2147483600;
+    background: #111;
+    color: #fff;
+    border: 1px solid #fff3;
+    border-radius: 999px;
+    padding: 4px 10px;
+    font: 600 12px/1 -apple-system, system-ui, sans-serif;
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity 120ms ease;
+    pointer-events: auto;
+  }
+  .sift-post-host:hover .sift-save-btn,
+  .sift-save-btn:focus {
+    opacity: 1;
+  }
+  .sift-save-btn.sift-saved {
+    background: #0a7b3f;
+  }
+  
+  .sift-post-host {
+    position: relative;
+  }
+  
+  .sift-badge {
+    position: fixed;
+    bottom: 18px;
+    right: 18px;
+    z-index: 2147483600;
+    background: #111;
+    color: #fff;
+    border: 1px solid #fff2;
+    border-radius: 12px;
+    padding: 10px 12px;
+    font: 500 12px/1.3 -apple-system, system-ui, sans-serif;
+    box-shadow: 0 12px 32px -12px rgba(0,0,0,0.6);
+    max-width: 280px;
+    cursor: default;
+  }
+  .sift-badge .sift-dot {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 999px;
+    background: #ff3b3b;
+    margin-right: 6px;
+    animation: sift-pulse 1.6s infinite;
+    vertical-align: middle;
+  }
+  .sift-badge a { color: #8ab4ff; text-decoration: none; margin-left: 6px; }
+  .sift-badge button {
+    background: transparent;
+    color: #fff;
+    border: 1px solid #fff3;
+    border-radius: 6px;
+    padding: 3px 8px;
+    margin-left: 6px;
+    font: 500 11px/1 inherit;
+    cursor: pointer;
+  }
+  @keyframes sift-pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.35; }
+  }
+  
+  .sift-capture-panel {
+    position: fixed;
+    bottom: 70px;
+    right: 18px;
+    width: 280px;
+    z-index: 2147483600;
+    background: #111;
+    color: #eee;
+    border: 1px solid #fff2;
+    border-radius: 12px;
+    padding: 10px 12px;
+    font: 500 11px/1.4 -apple-system, system-ui, sans-serif;
+    display: none;
+  }
+  .sift-capture-panel.open { display: block; }
+  .sift-capture-panel h4 {
+    margin: 0 0 6px;
+    font-size: 12px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: #aaa;
+  }
+  .sift-capture-panel ul { margin: 0; padding: 0 0 0 14px; }
+  .sift-capture-panel li { margin: 2px 0; }

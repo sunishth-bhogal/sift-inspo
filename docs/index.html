@@ -1,0 +1,306 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Sift — Turn your scrolling into research</title>
+  <meta name="description" content="A Chrome extension for creators. Save Mode captures posts you love. Research Mode analyzes your feed session and tells you which hooks worked, what you paused on, and gives you draft post ideas." />
+  <style>
+    :root {
+      --bg: #0b0b0d;
+      --bg2: #111116;
+      --panel: #17171c;
+      --line: #25252e;
+      --text: #eef0f7;
+      --mute: #8a8a96;
+      --accent: #8ab4ff;
+      --accent2: #b388ff;
+      --good: #2ecc71;
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; background: var(--bg); color: var(--text); font: 16px/1.55 -apple-system, system-ui, "Segoe UI", sans-serif; }
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    .container { max-width: 1080px; margin: 0 auto; padding: 0 24px; }
+
+    header {
+      padding: 18px 0; border-bottom: 1px solid var(--line);
+      position: sticky; top: 0; background: rgba(11,11,13,0.85); backdrop-filter: blur(8px); z-index: 10;
+    }
+    .nav { display: flex; justify-content: space-between; align-items: center; }
+    .brand { display: flex; gap: 10px; align-items: center; }
+    .logo {
+      width: 32px; height: 32px; border-radius: 9px;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      display: grid; place-items: center; color: #0b0b0d; font-weight: 800;
+    }
+    .name { font-weight: 700; }
+    .nav-links a { color: var(--mute); margin-left: 18px; font-size: 14px; }
+    .nav-links a:hover { color: var(--text); }
+
+    .hero {
+      padding: 80px 0 60px; text-align: center;
+      background:
+        radial-gradient(1200px 400px at 50% -50px, rgba(138,180,255,0.08), transparent 60%),
+        radial-gradient(800px 300px at 50% 0, rgba(179,136,255,0.06), transparent 60%);
+    }
+    .badge {
+      display: inline-block;
+      background: #1a1a24; color: var(--accent); border: 1px solid #2a2a3a;
+      padding: 4px 10px; border-radius: 999px; font-size: 12px; font-weight: 600;
+      letter-spacing: 0.04em;
+    }
+    h1 {
+      font-size: 56px; line-height: 1.05; margin: 18px 0 12px; letter-spacing: -0.02em;
+      background: linear-gradient(135deg, #fff, #b388ff); -webkit-background-clip: text; background-clip: text; color: transparent;
+    }
+    .sub { color: var(--mute); font-size: 18px; max-width: 640px; margin: 0 auto 28px; }
+    .cta { display: inline-flex; gap: 10px; }
+    .btn {
+      padding: 12px 18px; border-radius: 10px; font-weight: 700;
+      font-size: 14px; border: 1px solid transparent; cursor: pointer;
+    }
+    .btn.primary { background: var(--accent); color: #0b0b0d; }
+    .btn.primary:hover { background: #a3c4ff; text-decoration: none; }
+    .btn.ghost { background: transparent; color: var(--text); border-color: var(--line); }
+    .btn.ghost:hover { border-color: #3a3a44; }
+
+    .promise {
+      margin-top: 44px;
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; max-width: 780px; margin-left: auto; margin-right: auto;
+    }
+    .promise .p {
+      background: var(--panel); border: 1px solid var(--line); border-radius: 12px;
+      padding: 14px; text-align: left;
+    }
+    .promise .n { color: var(--accent); font-weight: 800; font-size: 22px; }
+    .promise .l { color: var(--mute); font-size: 12px; margin-top: 4px; }
+
+    section { padding: 80px 0; border-top: 1px solid var(--line); }
+    h2 { font-size: 34px; letter-spacing: -0.01em; margin: 0 0 12px; }
+    .lede { color: var(--mute); max-width: 640px; font-size: 17px; }
+
+    .tiers { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 40px; }
+    .tier {
+      background: var(--panel); border: 1px solid var(--line);
+      border-radius: 16px; padding: 28px;
+    }
+    .tier h3 { margin: 0 0 8px; font-size: 22px; }
+    .tier .pill {
+      font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em;
+      color: var(--accent); font-weight: 700; margin-bottom: 6px;
+    }
+    .tier ul { padding-left: 18px; color: var(--mute); }
+    .tier ul li { margin: 6px 0; color: #d4d4dc; }
+    .tier.accent { background: linear-gradient(180deg, #171722, #131318); border-color: #2c2c3a; }
+
+    .why { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-top: 36px; }
+    .why .card { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 20px; }
+    .why .card h4 { margin: 0 0 6px; }
+    .why .card p { color: var(--mute); margin: 0; font-size: 14px; }
+
+    .honesty {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 36px;
+    }
+    .honesty .block {
+      border: 1px solid var(--line); border-radius: 14px; padding: 22px; background: var(--panel);
+    }
+    .honesty h4 { margin: 0 0 10px; color: var(--accent); font-size: 13px; text-transform: uppercase; letter-spacing: 0.1em; }
+    .honesty ul { margin: 0; padding-left: 18px; color: var(--mute); font-size: 14px; }
+    .honesty ul li { margin: 4px 0; }
+
+    .output {
+      background: linear-gradient(180deg, #12121a, #0e0e14);
+      border: 1px solid var(--line); border-radius: 16px; padding: 24px; margin-top: 36px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 14px; color: #d4d4dc;
+      white-space: pre-wrap; line-height: 1.55;
+    }
+    .output .k { color: var(--accent2); }
+    .output .d { color: var(--mute); }
+    .output .g { color: var(--good); }
+
+    .faq details {
+      border-bottom: 1px solid var(--line); padding: 18px 0;
+    }
+    .faq summary { cursor: pointer; font-weight: 600; }
+    .faq p { color: var(--mute); margin: 10px 0 0; }
+
+    footer { padding: 40px 0; color: var(--mute); font-size: 13px; text-align: center; }
+    @media (max-width: 740px) {
+      h1 { font-size: 42px; }
+      .tiers, .why, .honesty { grid-template-columns: 1fr; }
+      .promise { grid-template-columns: 1fr 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="container nav">
+      <div class="brand"><div class="logo">✦</div><div class="name">Sift</div></div>
+      <nav class="nav-links">
+        <a href="#how">How it works</a>
+        <a href="#privacy">Privacy</a>
+        <a href="#faq">FAQ</a>
+        <a href="#get" class="btn primary" style="padding:8px 12px;">Get the extension</a>
+      </nav>
+    </div>
+  </header>
+
+  <section class="hero">
+    <div class="container">
+      <div class="badge">Research preview · Chrome · X and LinkedIn</div>
+      <h1>Turn your scrolling<br/>into research.</h1>
+      <p class="sub">Sift is a Chrome extension for creators. It runs in two modes. Save Mode captures the posts you like. Research Mode analyzes a browsing session and tells you which hooks worked, what patterns your attention followed, and gives you draft post ideas.</p>
+      <div class="cta">
+        <a href="#get" class="btn primary">Install on Chrome</a>
+        <a href="#how" class="btn ghost">See what it captures</a>
+      </div>
+
+      <div class="promise">
+        <div class="p"><div class="n">5</div><div class="l">hooks you stopped for today</div></div>
+        <div class="p"><div class="n">3</div><div class="l">recurring patterns in your attention</div></div>
+        <div class="p"><div class="n">2</div><div class="l">topics your feed is training you toward</div></div>
+        <div class="p"><div class="n">1</div><div class="l">draft post idea from this session</div></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="how">
+    <div class="container">
+      <h2>Two modes. One honest product.</h2>
+      <p class="lede">You decide when Sift is looking. No hidden background capture. A red dot is visible on the page whenever Research Mode is on.</p>
+
+      <div class="tiers">
+        <div class="tier">
+          <div class="pill">Tier 1 · Always on</div>
+          <h3>Save Mode</h3>
+          <p style="color: var(--mute);">Hover any post on X or LinkedIn and tap <b>Save to Sift</b>. Sift extracts the hook, format, tone, key terms, and author. Your saves become a searchable swipe file organized by hook pattern.</p>
+          <ul>
+            <li>Hook classification (listicle, imperative, question, personal story, contrarian…)</li>
+            <li>Author, URL, and timestamp</li>
+            <li>Key-term extraction for later topic search</li>
+            <li>Everything stored locally in your browser</li>
+          </ul>
+        </div>
+        <div class="tier accent">
+          <div class="pill">Tier 2 · Opt-in session</div>
+          <h3>Research Mode</h3>
+          <p style="color: var(--mute);">Start a session before you open your feed. Sift tracks dwell time, which posts you paused on, and engagement clicks. At the end you get a concrete summary, not a vague report.</p>
+          <ul>
+            <li>Dwell time per post (how long it stayed on your screen)</li>
+            <li>Clicks you made: comments, profile, link</li>
+            <li>Hook-pattern frequency across the session</li>
+            <li>Draft post ideas based on what actually held your attention</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="container">
+      <h2>What you actually get.</h2>
+      <p class="lede">No dashboards full of vanity metrics. Every session gives you four concrete outputs.</p>
+      <div class="output">
+<span class="k">SESSION — Apr 15, 8:42pm — 22min — X + LinkedIn</span>
+<span class="d">confidence: medium · 38 posts seen · 4m14s dwell</span>
+
+<span class="g">5 hooks you stopped for:</span>
+  1. "Stop building for 'users'. Build for the one person who already wants this."
+  2. "I ran 40 ad tests last month. 7 worked. Here's why."
+  3. "3 reasons your onboarding is losing people on day 2."
+  ...
+
+<span class="g">3 recurring patterns in your attention:</span>
+  · Numbered listicle openers — 9 posts
+  · Imperative hooks ("Stop", "Never") — 6 posts
+  · First-person story openers — 4 posts
+
+<span class="g">2 topics your feed is training you toward:</span>
+  · "onboarding"    · "retention"
+
+<span class="g">1 draft idea from today's session:</span>
+  "Try: 5 things I got wrong about retention. Use the imperative hook
+   your attention keeps landing on."
+      </div>
+    </div>
+  </section>
+
+  <section id="privacy">
+    <div class="container">
+      <h2>Honest about what it knows.</h2>
+      <p class="lede">A lot of AI products get cringe when they overstate what they know. Sift labels its outputs as signals, not truths.</p>
+
+      <div class="honesty">
+        <div class="block">
+          <h4>What Sift captures</h4>
+          <ul>
+            <li>Visible post text + author handle on X and LinkedIn</li>
+            <li>Dwell time (how long a post stayed on your screen)</li>
+            <li>Clicks you make inside post containers</li>
+            <li>Post URLs for later review</li>
+          </ul>
+        </div>
+        <div class="block">
+          <h4>What Sift never captures</h4>
+          <ul>
+            <li>DMs, settings, or any blocked path</li>
+            <li>Keystrokes outside post-action buttons</li>
+            <li>Full-page screenshots (opt-in only, not in this version)</li>
+            <li>Anything while Research Mode is off</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="why" style="margin-top: 24px;">
+        <div class="card">
+          <h4>Local-first</h4>
+          <p>All data lives in your browser's local storage. There is no server. Nothing is uploaded unless you export it.</p>
+        </div>
+        <div class="card">
+          <h4>Per-site toggles</h4>
+          <p>Decide which sites Sift can watch. Flip any of them off and Sift stops attaching there immediately.</p>
+        </div>
+        <div class="card">
+          <h4>Export and wipe in one click</h4>
+          <p>Download everything as JSON or wipe all data from the dashboard. Your call.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="faq" class="faq">
+    <div class="container">
+      <h2>FAQ</h2>
+      <details>
+        <summary>Is this spyware?</summary>
+        <p>No. Sift only activates when you start a Research session or click Save on a post. A red badge is always visible on the page when Research Mode is on. All data stays on your device.</p>
+      </details>
+      <details>
+        <summary>Why only X and LinkedIn?</summary>
+        <p>They're the easiest to do well first. Instagram and YouTube Shorts are on the roadmap once the Research Mode summaries feel solid.</p>
+      </details>
+      <details>
+        <summary>Does it really know why I paused?</summary>
+        <p>It knows you paused. "Why" is always an inference. Sift labels every inference with a confidence score (low / medium / high) instead of pretending to read your mind.</p>
+      </details>
+      <details>
+        <summary>Do I need an AI API key?</summary>
+        <p>Not for the MVP. The core pattern analysis is heuristic. Bring-your-own-key AI summaries are planned as an upgrade, but off by default so nothing leaves your device.</p>
+      </details>
+    </div>
+  </section>
+
+  <section id="get">
+    <div class="container" style="text-align:center;">
+      <h2>Install the preview</h2>
+      <p class="lede" style="margin: 0 auto 24px;">Currently available as an unpacked extension. Chrome Web Store listing coming once Research Mode hits v0.3.</p>
+      <a href="#" class="btn primary">Load the extension</a>
+    </div>
+  </section>
+
+  <footer>
+    <div class="container">Sift · a research preview · everything local, nothing shipped</div>
+  </footer>
+</body>
+</html>

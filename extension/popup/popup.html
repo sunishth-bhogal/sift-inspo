@@ -1,0 +1,62 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <link rel="stylesheet" href="popup.css" />
+  <title>Sift</title>
+</head>
+<body>
+  <header>
+    <div class="brand">
+      <div class="logo">✦</div>
+      <div>
+        <div class="name">Sift</div>
+        <div class="tag">Turn your scrolling into research</div>
+      </div>
+    </div>
+  </header>
+
+  <section class="mode">
+    <div class="mode-row">
+      <div>
+        <div class="mode-title">Research Mode</div>
+        <div class="mode-sub" id="researchStatus">Off</div>
+      </div>
+      <label class="switch">
+        <input type="checkbox" id="researchToggle" />
+        <span class="slider"></span>
+      </label>
+    </div>
+    <p class="mode-help">
+      Analyzes the session you're about to have on X or LinkedIn: dwell time, what you paused on,
+      and which hook patterns your attention followed. A red dot is visible on the page while it's on.
+    </p>
+  </section>
+
+  <section class="stats" id="stats" hidden>
+    <div class="stat"><div class="n" id="statPosts">0</div><div class="l">posts seen</div></div>
+    <div class="stat"><div class="n" id="statDwell">0s</div><div class="l">total dwell</div></div>
+    <div class="stat"><div class="n" id="statSaves">0</div><div class="l">saves today</div></div>
+  </section>
+
+  <section class="sites">
+    <div class="sites-title">Capture on</div>
+    <label><input type="checkbox" data-host="x.com" class="site-toggle" /> x.com</label>
+    <label><input type="checkbox" data-host="twitter.com" class="site-toggle" /> twitter.com</label>
+    <label><input type="checkbox" data-host="www.linkedin.com" class="site-toggle" /> linkedin.com</label>
+  </section>
+
+  <footer>
+    <button id="openDashboard" class="primary">Open dashboard</button>
+    <button id="wipe" class="ghost">Wipe all data</button>
+  </footer>
+
+  <div class="fineprint">
+    Data lives on this device only. No server. Nothing leaves your browser unless you export it.
+  </div>
+
+  <script src="../lib/storage.js"></script>
+  <script src="../lib/analyzer.js"></script>
+  <script src="popup.js"></script>
+</body>
+</html>
