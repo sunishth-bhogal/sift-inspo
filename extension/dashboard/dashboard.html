@@ -1,12 +1,13 @@
 <!doctype html>
-<html>
+<html lang="en">
 <head>
   <meta charset="utf-8" />
-  <title>Sift — Dashboard</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Sift Dashboard</title>
   <link rel="stylesheet" href="dashboard.css" />
 </head>
 <body>
-  <nav class="top">
+  <header class="topbar">
     <div class="brand">
       <div class="logo">✦</div>
       <div>
@@ -14,55 +15,67 @@
         <div class="tag">Turn your scrolling into research</div>
       </div>
     </div>
-    <div class="tabs">
-      <button data-tab="sessions" class="active">Sessions</button>
-      <button data-tab="saves">Swipe file</button>
-      <button data-tab="privacy">Privacy</button>
-    </div>
-  </nav>
 
-  <main>
+    <div class="tabs">
+      <button class="active" data-tab="sessions" type="button">Sessions</button>
+      <button data-tab="swipe" type="button">Swipe file</button>
+      <button data-tab="privacy" type="button">Privacy</button>
+    </div>
+  </header>
+
+  <main class="shell">
     <section id="tab-sessions" class="tab">
-      <div class="empty" id="sessionsEmpty" hidden>
-        No sessions yet. Open X or LinkedIn, click the Sift icon, and flip Research Mode on.
+      <div class="grid">
+        <aside class="left-col">
+          <div class="panel">
+            <div class="panel-head">
+              <h3>Sessions</h3>
+              <button id="exportBtn" class="ghost-btn" type="button">Export</button>
+            </div>
+            <div id="sessionsEmpty" class="muted">No sessions yet.</div>
+            <div id="sessionsList" class="stack"></div>
+          </div>
+        </aside>
+
+        <section class="right-col">
+          <div id="sessionDetail" class="panel">
+            <h2>Session summary</h2>
+            <div class="muted">Start Research Mode and scroll a little.</div>
+          </div>
+        </section>
       </div>
-      <div id="sessionsList" class="list"></div>
-      <div id="sessionDetail" class="detail"></div>
     </section>
 
-    <section id="tab-saves" class="tab" hidden>
-      <div class="empty" id="savesEmpty" hidden>
-        No saves yet. Hover a post on X or LinkedIn and click “Save to Sift.”
+    <section id="tab-swipe" class="tab" hidden>
+      <div class="panel">
+        <div class="panel-head">
+          <h3>Swipe file</h3>
+          <button id="wipeBtn" class="danger-btn" type="button">Wipe all data</button>
+        </div>
+        <div id="savesEmpty" class="muted">No saved posts yet.</div>
+        <div id="savesList" class="saves-grid"></div>
       </div>
-      <div id="savesList" class="saves-grid"></div>
     </section>
 
     <section id="tab-privacy" class="tab" hidden>
-      <h2>What Sift captures</h2>
-      <ul>
-        <li>Visible post text + author handle on X and LinkedIn</li>
-        <li>Dwell time (how long a post stayed on screen)</li>
-        <li>Clicks you make inside post containers (comments / profile / link)</li>
-        <li>Post URLs for later review</li>
-      </ul>
-      <h2>What Sift never captures</h2>
-      <ul>
-        <li>DMs, settings pages, or anything on a blocked path</li>
-        <li>Keystrokes outside post-action buttons</li>
-        <li>Screenshots (not in this version — opt-in only in the future)</li>
-      </ul>
-      <h2>Where it lives</h2>
-      <p>All data lives in <code>chrome.storage.local</code> on this device. There is no server. Nothing is uploaded.</p>
-
-      <div class="row">
-        <button id="exportBtn" class="primary">Export JSON</button>
-        <button id="wipeBtn" class="danger">Wipe all data</button>
+      <div class="panel prose">
+        <h2>Privacy</h2>
+        <p class="muted">
+          Sift stores data locally on this device for the MVP.
+        </p>
+        <ul>
+          <li>Visible post text and author</li>
+          <li>Dwell time per post</li>
+          <li>Clicks on comments, profiles, and links</li>
+          <li>Saved posts and session summaries</li>
+        </ul>
+        <p class="muted">
+          No server is required for this version.
+        </p>
       </div>
     </section>
   </main>
 
-  <script src="../lib/storage.js"></script>
-  <script src="../lib/analyzer.js"></script>
-  <script src="dashboard.js"></script>
+  <script src="dashboard-main.js"></script>
 </body>
 </html>
