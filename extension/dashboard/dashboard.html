@@ -16,31 +16,40 @@
       </div>
     </div>
 
-    <div class="tabs">
+    <nav class="tabs" aria-label="Dashboard sections">
       <button class="active" data-tab="sessions" type="button">Sessions</button>
       <button data-tab="swipe" type="button">Swipe file</button>
       <button data-tab="privacy" type="button">Privacy</button>
-    </div>
+    </nav>
   </header>
 
   <main class="shell">
     <section id="tab-sessions" class="tab">
       <div class="grid">
         <aside class="left-col">
-          <div class="panel">
+          <div class="panel session-rail">
             <div class="panel-head">
-              <h3>Sessions</h3>
+              <div>
+                <h3>Sessions</h3>
+                <div class="muted">Recent creator-mode runs</div>
+              </div>
               <button id="exportBtn" class="ghost-btn" type="button">Export</button>
             </div>
+
             <div id="sessionsEmpty" class="muted">No sessions yet.</div>
             <div id="sessionsList" class="stack"></div>
           </div>
         </aside>
 
         <section class="right-col">
-          <div id="sessionDetail" class="panel">
-            <h2>Session summary</h2>
-            <div class="muted">Start Research Mode and scroll a little.</div>
+          <div id="sessionDetail" class="panel detail-panel">
+            <div class="hero-card">
+              <div class="hero-label">What you should post next</div>
+              <h2>Run a short session and Sift will turn your scrolling into post directions.</h2>
+              <div class="muted">
+                You’ll get a recommended angle, voice-aware hook starters, and evidence from your session.
+              </div>
+            </div>
           </div>
         </section>
       </div>
@@ -49,9 +58,13 @@
     <section id="tab-swipe" class="tab" hidden>
       <div class="panel">
         <div class="panel-head">
-          <h3>Swipe file</h3>
+          <div>
+            <h3>Swipe file</h3>
+            <div class="muted">Posts you explicitly saved to revisit later</div>
+          </div>
           <button id="wipeBtn" class="danger-btn" type="button">Wipe all data</button>
         </div>
+
         <div id="savesEmpty" class="muted">No saved posts yet.</div>
         <div id="savesList" class="saves-grid"></div>
       </div>

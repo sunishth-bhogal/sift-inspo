@@ -1,4 +1,4 @@
-// Sift — shared content-script runtime (cleaned MVP runtime)
+// Sift — shared content-script runtime (safe MVP runtime)
 
 (function () {
   const POST_SEEN_DWELL_MS = 700;
@@ -26,6 +26,33 @@
     },
   };
 
+  function runtimeAvailable() {
+    return typeof chrome !== "undefined" && !!chrome?.runtime?.id;
+  }
+
+  async function safeSendMessage(message) {
+    if (!runtimeAvailable()) {
+      return { ok: false, reason: "runtime-unavailable" };
+    }
+
+    try {
+      return await chrome.runtime.sendMessage(message);
+    } catch (err) {
+      const msg = String(err?.message || err);
+
+      if (
+        msg.includes("Extension context invalidated") ||
+        msg.includes("Receiving end does not exist") ||
+        msg.includes("message port closed")
+      ) {
+        return { ok: false, reason: "runtime-invalidated" };
+      }
+
+      console.error("[Sift] sendMessage failed", err);
+      return { ok: false, reason: "send-failed", error: msg };
+    }
+  }
+
   function hostKey() {
     const h = location.host;
     if (h === "twitter.com") return "twitter.com";
@@ -39,8 +66,10 @@
 
   async function refreshState() {
     try {
-      const resp = await chrome.runtime.sendMessage({ type: "SIFT_GET_STATE" });
-      const s = resp?.settings || {};
+      const resp = await safeSendMessage({ type: "SIFT_GET_STATE" });
+      if (!resp?.settings) return;
+
+      const s = resp.settings || {};
 
       state.active = !!s.researchModeActive;
       state.sessionId = s.sessionId || null;
@@ -86,7 +115,7 @@
       el.addEventListener("click", (e) => {
         const act = e.target?.dataset?.siftAction;
         if (act === "stop") {
-          chrome.runtime.sendMessage({ type: "SIFT_STOP_SESSION" }).catch(() => {});
+          void safeSendMessage({ type: "SIFT_STOP_SESSION" });
         }
         if (act === "panel") {
           state.panelEl?.classList.toggle("open");
@@ -409,7 +438,7 @@
         const latest = safeExtract(node) || post || makeFallbackPost(node);
         if (!latest) return;
 
-        await chrome.runtime.sendMessage({
+        await safeSendMessage({
           type: "SIFT_SAVE_POST",
           post: {
             ...latest,
@@ -418,7 +447,7 @@
         });
 
         if (state.active) {
-          await chrome.runtime.sendMessage({
+          await safeSendMessage({
             type: "SIFT_LOG_EVENT",
             event: {
               kind: "save_post",
@@ -466,7 +495,7 @@
 
     rec.sentDwellMs = rec.dwellMs;
 
-    chrome.runtime.sendMessage({
+    void safeSendMessage({
       type: "SIFT_LOG_EVENT",
       event: {
         kind: "post_seen",
@@ -477,7 +506,7 @@
           lastSeenAt: now,
         },
       },
-    }).catch(() => {});
+    });
   }
 
   function flushAllVisiblePosts() {
@@ -512,7 +541,7 @@
     const kind = classifyClick(target);
     if (kind === "unknown") return;
 
-    chrome.runtime.sendMessage({
+    void safeSendMessage({
       type: "SIFT_LOG_EVENT",
       event: {
         kind,
@@ -520,7 +549,7 @@
         postId: rec.postId,
         platform: rec.post?.platform,
       },
-    }).catch(() => {});
+    });
   }
 
   function classifyClick(el) {
@@ -556,11 +585,13 @@
     return (h >>> 0).toString(36);
   }
 
-  chrome.runtime.onMessage.addListener((msg) => {
-    if (msg?.type === "SIFT_RESEARCH_STATE") {
-      refreshState();
-    }
-  });
+  if (runtimeAvailable()) {
+    chrome.runtime.onMessage.addListener((msg) => {
+      if (msg?.type === "SIFT_RESEARCH_STATE") {
+        refreshState();
+      }
+    });
+  }
 
   window.SiftCommon = {
     install(adapter) {

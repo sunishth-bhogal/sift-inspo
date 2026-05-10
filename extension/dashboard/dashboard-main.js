@@ -1,21 +1,14 @@
-console.log("SIFT DASHBOARD MAIN V2 LOADED");
+console.log("SIFT DASHBOARD MAIN CREATOR MODE LOADED");
 
 const $ = (id) => document.getElementById(id);
 
-const STOP_WORDS = new Set([
-  "the","a","an","and","or","but","if","then","than","that","this","these","those",
-  "to","of","in","on","at","for","from","with","without","by","as","is","are","was","were",
-  "be","been","being","it","its","you","your","yours","i","we","they","he","she","them",
-  "our","us","my","me","their","his","her","about","into","over","under","again","still",
-  "just","very","more","most","less","much","many","some","any","all","not","no","yes",
-  "do","did","does","done","can","could","should","would","will","have","has","had","having",
-  "im","ive","youre","theyre","ill","thats","heres","also","really","like","comment","repost",
-  "send","follow","edited","show","post","feed"
-]);
-
 function fmtTime(ts) {
   if (!ts) return "—";
-  return new Date(ts).toLocaleString();
+  try {
+    return new Date(ts).toLocaleString();
+  } catch {
+    return "—";
+  }
 }
 
 function fmtDur(ms) {
@@ -36,22 +29,7 @@ function escapeHtml(s) {
   }[c]));
 }
 
-function setupTabs() {
-  const buttons = document.querySelectorAll(".tabs button");
-  const tabs = document.querySelectorAll(".tab");
-
-  buttons.forEach((btn) => {
-    btn.addEventListener("click", () => {
-      buttons.forEach((b) => b.classList.remove("active"));
-      btn.classList.add("active");
-      tabs.forEach((t) => (t.hidden = true));
-      const target = $(`tab-${btn.dataset.tab}`);
-      if (target) target.hidden = false;
-    });
-  });
-}
-
-function cleanCapturedText(text, author = "") {
+function cleanText(text, author = "") {
   let t = String(text || "").replace(/\s+/g, " ").trim();
 
   t = t
@@ -69,9 +47,6 @@ function cleanCapturedText(text, author = "") {
     .replace(/\b\d+\s+comments?\b/gi, "")
     .replace(/\b\d+\s+reposts?\b/gi, "")
     .replace(/\b\d+\s+others?\b/gi, "")
-    .replace(/\b[A-Z][a-z]+(?:\s+[A-Z][a-z]+){1,3}\s+likes this\b/g, "")
-    .replace(/\b[A-Z][a-z]+(?:\s+[A-Z][a-z]+){1,3}\s+loves this\b/g, "")
-    .replace(/\b[A-Z][a-z]+(?:\s+[A-Z][a-z]+){1,3}\s+commented on this\b/g, "")
     .replace(/\bFollow\b/gi, "")
     .replace(/\bEdited\b/gi, "");
 
@@ -80,8 +55,7 @@ function cleanCapturedText(text, author = "") {
     t = t.replace(new RegExp(`^${escaped}\\s*`, "i"), "");
   }
 
-  t = t.replace(/\s+/g, " ").trim();
-  return t;
+  return t.replace(/\s+/g, " ").trim();
 }
 
 function classifyHook(text = "") {
@@ -97,92 +71,299 @@ function classifyHook(text = "") {
   return "Statement";
 }
 
-function extractKeyTerms(posts, limit = 5) {
-  const counts = new Map();
+function setupTabs() {
+  const buttons = document.querySelectorAll(".tabs button");
+  const tabs = document.querySelectorAll(".tab");
 
-  for (const post of posts) {
-    const words = String(post.cleanedText || "")
-      .toLowerCase()
-      .match(/[a-z][a-z0-9-]{2,}/g) || [];
+  buttons.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      buttons.forEach((b) => b.classList.remove("active"));
+      btn.classList.add("active");
 
-    for (const word of words) {
-      if (STOP_WORDS.has(word)) continue;
-      counts.set(word, (counts.get(word) || 0) + 1);
-    }
-  }
+      tabs.forEach((tab) => {
+        tab.hidden = true;
+      });
 
-  return [...counts.entries()]
-    .sort((a, b) => b[1] - a[1])
-    .slice(0, limit)
-    .map(([term, count]) => ({ term, count }));
+      const target = document.getElementById(`tab-${btn.dataset.tab}`);
+      if (target) target.hidden = false;
+    });
+  });
 }
 
-function summarizeSession(session) {
+function normalizePostsForView(session) {
   const posts = Array.isArray(session?.posts) ? session.posts : [];
-  const events = Array.isArray(session?.events) ? session.events : [];
-  const startedAt = session?.startedAt || Date.now();
-  const endedAt = session?.endedAt || Date.now();
+  const summary = session?.summary || {};
+  const analysis = session?.analysis || {};
 
-  const normalizedPosts = posts.map((p) => {
-    const cleanedText = cleanCapturedText(p.text || "", p.author || "");
-    return {
-      ...p,
-      author: (p.author || "unknown").trim() || "unknown",
-      cleanedText,
-      dwellMs: p.dwellMs || 0,
-      hook: classifyHook(cleanedText),
-      platform: p.platform || "unknown",
-    };
-  });
+  const strongestPostsSource =
+    Array.isArray(analysis.strongestPosts) && analysis.strongestPosts.length
+      ? analysis.strongestPosts
+      : Array.isArray(summary.topPosts) && summary.topPosts.length
+        ? summary.topPosts
+        : posts;
 
-  const totalDwell = normalizedPosts.reduce((sum, p) => sum + p.dwellMs, 0);
-
-  const strongestPosts = [...normalizedPosts]
+  return strongestPostsSource
+    .map((p) => {
+      const text = cleanText(p.cleanedText || p.text || "", p.author || "");
+      return {
+        id: p.id || "",
+        platform: p.platform || "unknown",
+        author: (p.author || "unknown").trim() || "unknown",
+        dwellMs: p.dwellMs || 0,
+        hook: p.hook || p.hookType || classifyHook(text),
+        text,
+        url: p.url || null,
+      };
+    })
+    .filter((p) => p.text)
     .sort((a, b) => (b.dwellMs || 0) - (a.dwellMs || 0))
-    .slice(0, 5);
+    .slice(0, 6);
+}
 
-  const hookCounts = new Map();
-  for (const post of normalizedPosts) {
-    hookCounts.set(post.hook, (hookCounts.get(post.hook) || 0) + 1);
+function countMatches(texts, patterns) {
+  let count = 0;
+  for (const text of texts) {
+    if (patterns.some((re) => re.test(text))) count += 1;
   }
+  return count;
+}
 
-  const topHooks = [...hookCounts.entries()]
-    .sort((a, b) => b[1] - a[1])
-    .slice(0, 3)
-    .map(([hook, count]) => ({ hook, count }));
+function inferTheme(posts) {
+  const texts = posts.map((p) => p.text.toLowerCase());
 
-  const topics = extractKeyTerms(normalizedPosts, 5);
-
-  const commentClicks = events.filter((e) => e.kind === "comment_click").length;
-  const linkClicks = events.filter((e) => e.kind === "link_click").length;
-  const saves = events.filter((e) => e.kind === "save_post").length;
-
-  const mainHook = topHooks[0]?.hook || "Statement";
-  const mainTopic = topics[0]?.term || "general creator content";
-
-  const insight = normalizedPosts.length
-    ? `You mainly paused for ${mainHook.toLowerCase()}-style posts, and your feed leaned toward ${mainTopic}.`
-    : "Not enough data yet to infer a clear attention pattern.";
-
-  const draftIdeas = [
-    `Try: ${mainHook === "Listicle" ? "3 things I learned about" : "My take on"} ${mainTopic}`,
-    `Try: What most people get wrong about ${mainTopic}`,
-    `Try: A short post on why ${mainTopic} keeps grabbing attention`
+  const buckets = [
+    {
+      label: "career milestones",
+      score: countMatches(texts, [
+        /\bintern(ship)?\b/,
+        /\bjob\b/,
+        /\boffer\b/,
+        /\bjoined?\b/,
+        /\bjoining\b/,
+        /\brole\b/,
+        /\bgraduat(ed|ing)?\b/,
+        /\bfull[- ]time\b/,
+        /\bcareer\b/,
+        /\binterview\b/
+      ]),
+    },
+    {
+      label: "building and launching",
+      score: countMatches(texts, [
+        /\bbuild(ing)?\b/,
+        /\blaunch(ed|ing)?\b/,
+        /\bproduct\b/,
+        /\bapp\b/,
+        /\busers?\b/,
+        /\bgrowth\b/,
+        /\bship(ped|ping)?\b/,
+        /\bfeature\b/,
+        /\bstartup\b/
+      ]),
+    },
+    {
+      label: "lessons and reflections",
+      score: countMatches(texts, [
+        /\blearn(ed|ing)?\b/,
+        /\brealized?\b/,
+        /\bnoticed?\b/,
+        /\bsurprised?\b/,
+        /\bthought\b/,
+        /\bmistake\b/,
+        /\blesson\b/,
+        /\bchanged\b/
+      ]),
+    },
+    {
+      label: "proof and results",
+      score: countMatches(texts, [
+        /%/,
+        /\b\d+x\b/,
+        /\bgrew\b/,
+        /\bincreased\b/,
+        /\bdropped\b/,
+        /\bresult(s)?\b/,
+        /\btest(s)?\b/,
+        /\bmetrics?\b/
+      ]),
+    }
   ];
 
-  return {
-    posts: normalizedPosts,
-    strongestPosts,
-    topHooks,
-    topics,
-    commentClicks,
-    linkClicks,
-    saves,
-    totalDwell,
-    durationMs: Math.max(0, endedAt - startedAt),
-    insight,
-    draftIdeas,
+  buckets.sort((a, b) => b.score - a.score);
+  return buckets[0]?.score ? buckets[0].label : "personal proof";
+}
+
+function inferVoice(posts) {
+  const texts = posts.map((p) => p.text.toLowerCase());
+
+  const firstPerson = countMatches(texts, [/\bi\b/, /\bmy\b/, /\bme\b/, /\bwe\b/, /\bour\b/]);
+  const reflective = countMatches(texts, [/\bi used to think\b/, /\bnoticed\b/, /\brealized\b/, /\blearned\b/, /\bsurprised\b/]);
+  const direct = countMatches(texts, [/^(stop|start|never|always|do|build|write|learn|try)\b/i]);
+  const tactical = countMatches(texts, [/\bhow to\b/, /\bmistakes\b/, /\blessons\b/, /\bways\b/, /\breasons\b/, /\bguide\b/]);
+
+  if (reflective >= direct && reflective >= tactical) {
+    return "reflective, first-person";
+  }
+  if (tactical > reflective) {
+    return "practical and takeaway-driven";
+  }
+  if (direct > reflective) {
+    return "direct and punchy";
+  }
+  if (firstPerson > 0) {
+    return "personal and first-person";
+  }
+  return "clean and direct";
+}
+
+function uniqueStrings(items) {
+  return [...new Set((items || []).filter(Boolean))];
+}
+
+function buildDirectionCards(session) {
+  const posts = normalizePostsForView(session);
+  const analysis = session?.analysis || {};
+  const summary = session?.summary || {};
+
+  const mainHook =
+    analysis.topHooks?.[0]?.hook ||
+    summary.topPatterns?.[0]?.pattern ||
+    (posts[0]?.hook || "Statement");
+
+  const theme = inferTheme(posts);
+  const voice = inferVoice(posts);
+
+  const feedWhy = [];
+  if (/Story/i.test(mainHook)) {
+    feedWhy.push("Your strongest posts leaned personal and outcome-based.");
+  } else if (/Data-led/i.test(mainHook)) {
+    feedWhy.push("You paused on posts with proof, numbers, or visible results.");
+  } else if (/Listicle|How-to/i.test(mainHook)) {
+    feedWhy.push("You gave attention to structured posts that promise quick value.");
+  } else {
+    feedWhy.push("You mainly paused on fast, easy-to-parse statements with a clear point.");
+  }
+
+  if ((analysis.signals?.saves || 0) > 0 || (summary.saves || 0) > 0) {
+    feedWhy.push("Saved posts suggest you value ideas you can reuse, not just consume.");
+  }
+  if ((analysis.signals?.linkClicks || 0) > 0 || (summary.linkClicks || 0) > 0 || (summary.profileClicks || 0) > 0) {
+    feedWhy.push("Some posts built enough trust or curiosity to make you explore further.");
+  }
+
+  const whyFeed = feedWhy.join(" ");
+  const whyVoice = `This fits a ${voice} style better than generic copied hooks.`;
+
+  return [
+    {
+      title: "Personal result + hidden lesson",
+      whyFeed,
+      whyVoice,
+      starters: [
+        `I used to think ${theme} was about the visible result, but what actually changed things was ___`,
+        `The part people do not see about ${theme} is ___`,
+        `What changed for me after ___ was not what I expected`
+      ],
+      guardrail: "Do not copy someone else's milestone. Use your own result, tension, or lesson."
+    },
+    {
+      title: "Break down one thing that actually worked",
+      whyFeed: `Your feed did not just reward topics. It rewarded clarity, proof, and easy-to-extract value around ${theme}.`,
+      whyVoice: "This lets you sound helpful without becoming generic or overly polished.",
+      starters: [
+        `3 things that mattered more than I expected in ${theme}`,
+        `One thing I got wrong about ${theme}`,
+        `If I had to explain ${theme} simply, I would say ___`
+      ],
+      guardrail: "Make the takeaway come from your lived experience, not from copied advice."
+    },
+    {
+      title: "Short belief shift / perspective post",
+      whyFeed: "Attention often followed clean statements that created tension fast and resolved it quickly.",
+      whyVoice: "This works well if you want to sound thoughtful, not robotic.",
+      starters: [
+        `I used to optimize for ___, but ___ mattered more`,
+        `Most people talk about ${theme} as if ___, but what I have seen is ___`,
+        `What surprised me about ${theme} is how often ___`
+      ],
+      guardrail: "Keep it specific. One shift, one insight, one example."
+    }
+  ];
+}
+
+function buildHeroSummary(session) {
+  const posts = normalizePostsForView(session);
+  const analysis = session?.analysis || {};
+  const summary = session?.summary || {};
+
+  const mainHook =
+    analysis.topHooks?.[0]?.hook ||
+    summary.topPatterns?.[0]?.pattern ||
+    (posts[0]?.hook || "Statement");
+
+  const theme = inferTheme(posts);
+
+  let move = "write a short first-person post with one visible result and one hidden lesson";
+  if (/Data-led/i.test(mainHook)) {
+    move = "write a proof-backed insight post with one clear metric and one takeaway";
+  } else if (/Listicle|How-to/i.test(mainHook)) {
+    move = "write a practical breakdown with 2 to 3 sharp takeaways from your own experience";
+  } else if (/Story/i.test(mainHook)) {
+    move = "write a personal story with a concrete before-and-after shift";
+  }
+
+  return `Best next move: ${move} around ${theme}.`;
+}
+
+function getSessionView(session) {
+  const posts = Array.isArray(session?.posts) ? session.posts : [];
+  const events = Array.isArray(session?.events) ? session.events : [];
+  const summary = session?.summary || {};
+  const analysis = session?.analysis || {};
+  const evidencePosts = normalizePostsForView(session);
+
+  const totalPosts = posts.length;
+  const totalEvents = events.length || summary.totalEvents || 0;
+  const totalDwell =
+    summary.totalDwellMs || posts.reduce((sum, p) => sum + (p.dwellMs || 0), 0);
+  const durationMs = Math.max(
+    0,
+    (session?.endedAt || Date.now()) - (session?.startedAt || Date.now())
+  );
+
+  const signals = analysis.signals || {
+    commentClicks: summary.commentClicks || 0,
+    linkClicks: (summary.linkClicks || 0) + (summary.profileClicks || 0),
+    saves: summary.saves || 0,
   };
+
+  const directions = buildDirectionCards(session);
+  const hero = buildHeroSummary(session);
+
+  const voiceNotes = uniqueStrings([
+    `Your next posts should sound ${inferVoice(evidencePosts)}.`,
+    "Use the hook pattern, not the exact sentence.",
+    "Lead with one clear result, shift, or lesson."
+  ]);
+
+  return {
+    hero,
+    directions,
+    voiceNotes,
+    evidencePosts,
+    totalPosts,
+    totalEvents,
+    totalDwell,
+    durationMs,
+    signals,
+  };
+}
+
+function renderRows(items, emptyText, formatter) {
+  if (!items || !items.length) {
+    return `<div class="muted">${escapeHtml(emptyText)}</div>`;
+  }
+  return items.map(formatter).join("");
 }
 
 function renderSessions(list) {
@@ -197,30 +378,30 @@ function renderSessions(list) {
   if (!list.length) {
     detail.innerHTML = `
       <h2>Session summary</h2>
-      <div class="muted">No sessions yet.</div>
+      <div class="muted">Start Research Mode and scroll a little.</div>
     `;
     return;
   }
 
-  for (const s of list) {
-    const summary = summarizeSession(s);
+  list.forEach((session) => {
+    const view = getSessionView(session);
 
     const card = document.createElement("div");
     card.className = "session-card";
     card.innerHTML = `
       <div>
-        <div class="title">${fmtTime(s.startedAt)} ${s.endedAt ? "" : '<span class="live-chip">(live)</span>'}</div>
+        <div class="title">${escapeHtml(fmtTime(session.startedAt))}</div>
         <div class="sub">
-          ${fmtDur(summary.durationMs)} ·
-          ${summary.posts.length} posts ·
-          ${summary.topHooks[0] ? summary.topHooks[0].hook : "No pattern yet"}
+          ${escapeHtml(fmtDur(view.durationMs))} ·
+          ${escapeHtml(String(view.totalPosts))} posts ·
+          Creator mode
         </div>
       </div>
-      <div class="stat">${fmtDur(summary.totalDwell)} dwell</div>
+      <div class="stat">${escapeHtml(fmtDur(view.totalDwell))} dwell</div>
     `;
-    card.addEventListener("click", () => renderDetail(s));
+    card.addEventListener("click", () => renderDetail(session));
     host.appendChild(card);
-  }
+  });
 
   renderDetail(list[0]);
 }
@@ -229,89 +410,91 @@ function renderDetail(session) {
   const detail = $("sessionDetail");
   if (!detail) return;
 
-  if (!session) {
-    detail.innerHTML = "";
-    return;
-  }
-
-  const summary = summarizeSession(session);
+  const view = getSessionView(session);
 
   detail.innerHTML = `
     <div class="hero-card">
-      <div class="hero-label">Session summary</div>
-      <h2>${escapeHtml(summary.insight)}</h2>
+      <div class="hero-label">What you should post next</div>
+      <h2>${escapeHtml(view.hero)}</h2>
       <div class="muted">
-        Started ${fmtTime(session.startedAt)} ·
-        ${session.endedAt ? `ended ${fmtTime(session.endedAt)}` : "still running"}
+        Started ${escapeHtml(fmtTime(session.startedAt))} ·
+        ${session.endedAt ? `ended ${escapeHtml(fmtTime(session.endedAt))}` : "still running"}
       </div>
     </div>
 
     <div class="kpis">
-      <div class="kpi"><div class="n">${summary.posts.length}</div><div class="l">posts seen</div></div>
-      <div class="kpi"><div class="n">${session.events?.length || 0}</div><div class="l">events</div></div>
-      <div class="kpi"><div class="n">${fmtDur(summary.totalDwell)}</div><div class="l">total dwell</div></div>
-      <div class="kpi"><div class="n">${fmtDur(summary.durationMs)}</div><div class="l">session length</div></div>
+      <div class="kpi"><div class="n">${escapeHtml(String(view.totalPosts))}</div><div class="l">posts seen</div></div>
+      <div class="kpi"><div class="n">${escapeHtml(String(view.totalEvents))}</div><div class="l">events</div></div>
+      <div class="kpi"><div class="n">${escapeHtml(fmtDur(view.totalDwell))}</div><div class="l">total dwell</div></div>
+      <div class="kpi"><div class="n">${escapeHtml(fmtDur(view.durationMs))}</div><div class="l">session length</div></div>
     </div>
 
-    <div class="insight-grid">
-      <div class="mini-panel">
-        <div class="section-title">What caught your attention</div>
-        ${
-          summary.topHooks.length
-            ? summary.topHooks.map((item) => `
-                <div class="pattern-row">
-                  <div class="label">${escapeHtml(item.hook)}</div>
-                  <div class="count">${item.count} posts</div>
-                </div>
-              `).join("")
-            : '<div class="muted">No clear hook pattern yet.</div>'
-        }
-      </div>
-
-      <div class="mini-panel">
-        <div class="section-title">Topics that kept recurring</div>
-        ${
-          summary.topics.length
-            ? summary.topics.map((item) => `
-                <div class="pattern-row">
-                  <div class="label">${escapeHtml(item.term)}</div>
-                  <div class="count">${item.count} hits</div>
-                </div>
-              `).join("")
-            : '<div class="muted">No recurring topics yet.</div>'
-        }
-      </div>
-
-      <div class="mini-panel">
-        <div class="section-title">Session signals</div>
-        <div class="signal-row"><span>Comment clicks</span><strong>${summary.commentClicks}</strong></div>
-        <div class="signal-row"><span>Link/profile clicks</span><strong>${summary.linkClicks}</strong></div>
-        <div class="signal-row"><span>Saves</span><strong>${summary.saves}</strong></div>
-      </div>
-    </div>
-
-    <div class="section-title">Best captured posts</div>
-    <div class="paused-list">
-      ${
-        summary.strongestPosts.length
-          ? summary.strongestPosts.map((p) => `
-              <div class="paused-card">
-                <div class="meta">${String(p.platform || "unknown").toUpperCase()} · ${escapeHtml(p.author || "unknown")} · ${fmtDur(p.dwellMs || 0)} · ${escapeHtml(p.hook)}</div>
-                <div class="txt">${escapeHtml((p.cleanedText || "(no text)").slice(0, 280))}</div>
-                <div class="row">
-                  ${p.url ? `<a href="${p.url}" target="_blank" rel="noopener">Open original →</a>` : ""}
-                </div>
-              </div>
-            `).join("")
-          : '<div class="muted">No posts captured yet.</div>'
-      }
-    </div>
-
-    <div class="section-title">Draft angles from this session</div>
+    <div class="section-title">Top content directions</div>
     <div class="draft-list">
-      ${summary.draftIdeas.map((idea) => `
-        <div class="draft-card">${escapeHtml(idea)}</div>
-      `).join("")}
+      ${renderRows(
+        view.directions,
+        "No content directions yet.",
+        (d) => `
+          <div class="draft-card">
+            <div style="font-weight:700; margin-bottom:8px;">${escapeHtml(d.title)}</div>
+            <div class="muted" style="margin-bottom:10px;"><strong>Why this fits your feed:</strong> ${escapeHtml(d.whyFeed)}</div>
+            <div class="muted" style="margin-bottom:10px;"><strong>Why this fits your voice:</strong> ${escapeHtml(d.whyVoice)}</div>
+            <div class="section-title" style="margin-top:0;">Hook starters</div>
+            <div class="stack">
+              ${(d.starters || []).map((starter) => `
+                <div class="pattern-row">
+                  <div class="label">${escapeHtml(starter)}</div>
+                </div>
+              `).join("")}
+            </div>
+            <div class="muted" style="margin-top:10px;"><strong>Guardrail:</strong> ${escapeHtml(d.guardrail)}</div>
+          </div>
+        `
+      )}
+    </div>
+
+    <div class="insight-grid" style="margin-top:16px;">
+      <div class="mini-panel">
+        <div class="section-title">Why these directions fit</div>
+        <div class="signal-row"><span>Comment clicks</span><strong>${escapeHtml(String(view.signals.commentClicks || 0))}</strong></div>
+        <div class="signal-row"><span>Link/profile clicks</span><strong>${escapeHtml(String(view.signals.linkClicks || 0))}</strong></div>
+        <div class="signal-row"><span>Saves</span><strong>${escapeHtml(String(view.signals.saves || 0))}</strong></div>
+      </div>
+
+      <div class="mini-panel">
+        <div class="section-title">Voice notes</div>
+        ${renderRows(
+          view.voiceNotes,
+          "No voice notes yet.",
+          (item) => `
+            <div class="pattern-row">
+              <div class="label">${escapeHtml(item)}</div>
+            </div>
+          `
+        )}
+      </div>
+    </div>
+
+    <div class="section-title">Evidence from this session</div>
+    <div class="paused-list">
+      ${renderRows(
+        view.evidencePosts,
+        "No evidence posts captured yet.",
+        (p) => `
+          <div class="paused-card">
+            <div class="meta">
+              ${escapeHtml(String(p.platform || "unknown").toUpperCase())} ·
+              ${escapeHtml(p.author)} ·
+              ${escapeHtml(fmtDur(p.dwellMs || 0))} ·
+              ${escapeHtml(p.hook || "Unknown")}
+            </div>
+            <div class="txt">${escapeHtml(p.text || "(no text)")}</div>
+            <div class="row">
+              ${p.url ? `<a href="${p.url}" target="_blank" rel="noopener">Open original →</a>` : ""}
+            </div>
+          </div>
+        `
+      )}
     </div>
   `;
 }
@@ -324,26 +507,32 @@ function renderSaves(list) {
   host.innerHTML = "";
   empty.hidden = list.length > 0;
 
-  for (const p of list) {
-    const cleanedText = cleanCapturedText(p.text || "", p.author || "");
+  list.forEach((p) => {
+    const cleaned = cleanText(p.text || "", p.author || "");
     const card = document.createElement("div");
     card.className = "save-card";
     card.innerHTML = `
       <div class="head">
-        <span>${String(p.platform || "unknown").toUpperCase()} · ${escapeHtml(p.author || "unknown")}</span>
-        <span>${fmtTime(p.savedAt)}</span>
+        <span>${escapeHtml(String(p.platform || "unknown").toUpperCase())} · ${escapeHtml(p.author || "unknown")}</span>
+        <span>${escapeHtml(fmtTime(p.savedAt))}</span>
       </div>
-      <div class="save-hook">${escapeHtml(classifyHook(cleanedText))}</div>
-      <div class="txt">${escapeHtml(cleanedText.slice(0, 220))}</div>
+      <div class="save-hook">${escapeHtml(classifyHook(cleaned))}</div>
+      <div class="txt">${escapeHtml(cleaned.slice(0, 220))}</div>
       ${p.url ? `<a href="${p.url}" target="_blank" rel="noopener">Open original →</a>` : ""}
     `;
     host.appendChild(card);
-  }
+  });
 }
 
 async function load() {
-  const { sessions = {}, saves = [] } = await chrome.storage.local.get(["sessions", "saves"]);
-  const sortedSessions = Object.values(sessions).sort((a, b) => (b.startedAt || 0) - (a.startedAt || 0));
+  const data = await chrome.storage.local.get(["sessions", "saves"]);
+  const sessions = data.sessions || {};
+  const saves = data.saves || [];
+
+  const sortedSessions = Object.values(sessions).sort(
+    (a, b) => (b.startedAt || 0) - (a.startedAt || 0)
+  );
+
   renderSessions(sortedSessions);
   renderSaves(saves);
 }
@@ -375,11 +564,11 @@ function bindButtons() {
 }
 
 document.addEventListener("DOMContentLoaded", async () => {
-  setupTabs();
-  bindButtons();
-  await load();
-});
-
-chrome.storage.onChanged.addListener(() => {
-  load().catch(console.error);
+  try {
+    setupTabs();
+    bindButtons();
+    await load();
+  } catch (err) {
+    console.error("[Sift dashboard] init failed", err);
+  }
 });
