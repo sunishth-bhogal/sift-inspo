@@ -7,97 +7,244 @@
   <link rel="stylesheet" href="dashboard.css" />
 </head>
 <body>
+
   <header class="topbar">
     <div class="brand">
       <div class="logo">✦</div>
       <div>
         <div class="name">Sift</div>
-        <div class="tag">Turn your scrolling into research</div>
+        <div class="tag">Turn your scrolling into strategy</div>
       </div>
     </div>
-
-    <nav class="tabs" aria-label="Dashboard sections">
-      <button class="active" data-tab="sessions" type="button">Command Center</button>
-      <button data-tab="swipe" type="button">Swipe File</button>
-      <button data-tab="privacy" type="button">Privacy</button>
+    <nav class="top-tabs" aria-label="Main sections">
+      <button class="active" data-view="sessions" type="button">Sessions</button>
+      <button data-view="linkedin" type="button">LinkedIn Import</button>
+      <button data-view="research" type="button">Research</button>
+      <button data-view="privacy" type="button">Privacy</button>
     </nav>
   </header>
 
   <main class="shell">
 
-    <!-- ── Sessions / Command Center ── -->
-    <section id="tab-sessions" class="tab">
+    <!-- ═══════════════════════════════════════════
+         VIEW: Sessions / Command Center
+    ════════════════════════════════════════════ -->
+    <div id="view-sessions" class="view">
       <div class="cmd-grid">
 
-        <!-- Left: session sidebar -->
+        <!-- Left sidebar -->
         <aside class="sidebar-col">
-          <div class="panel session-rail">
-            <div class="panel-head">
+          <div class="sidebar-panel">
+            <div class="sidebar-head">
               <div>
-                <h3>Sessions</h3>
-                <div class="muted small">Recent research runs</div>
+                <div class="sidebar-title">Sessions</div>
+                <div class="sidebar-sub">Research runs</div>
               </div>
-              <button id="exportBtn" class="ghost-btn" type="button">Export</button>
+              <button id="exportBtn" class="icon-btn" title="Export data" type="button">↓</button>
             </div>
-            <div id="sessionsEmpty" class="muted small">No sessions yet. Start Research Mode and scroll.</div>
-            <div id="sessionsList" class="session-stack"></div>
+            <div id="sessionsEmpty" class="empty-hint">No sessions yet.<br>Start Research Mode and scroll.</div>
+            <div id="sessionsList"></div>
           </div>
         </aside>
 
         <!-- Center: command center -->
         <section class="center-col" id="centerCol">
+
           <!-- empty state -->
-          <div id="emptyState" class="empty-state">
-            <div class="empty-icon">✦</div>
-            <h2>Your creator command center is ready.</h2>
-            <p class="muted">Enable Research Mode in the Sift extension, scroll your feed for a few minutes, then come back here to see your next best post recommendation.</p>
+          <div id="emptyState" class="splash">
+            <div class="splash-icon">✦</div>
+            <h2>Your content command center.</h2>
+            <p>Enable Research Mode, scroll LinkedIn or X, then return here to see your next best post recommendation — backed by your own behavior.</p>
+            <button class="btn-accent" onclick="document.querySelector('[data-view=linkedin]').click()">
+              Import LinkedIn posts instead →
+            </button>
           </div>
 
-          <!-- populated per session -->
-          <div id="sessionDetail" hidden></div>
+          <!-- Session detail (hidden until session selected) -->
+          <div id="sessionDetail" hidden>
+
+            <!-- Hero recommendation card -->
+            <div class="hero-card" id="heroCard">
+              <!-- populated by JS -->
+            </div>
+
+            <!-- Sub-tabs -->
+            <nav class="sub-tabs" aria-label="Recommendation sections">
+              <button class="active" data-subtab="recommendation" type="button">Recommendation</button>
+              <button data-subtab="evidence" type="button">Evidence</button>
+              <button data-subtab="hooks" type="button">Hooks</button>
+              <button data-subtab="draft" type="button">Draft</button>
+            </nav>
+
+            <div id="subtab-recommendation" class="subtab-panel"><!-- JS --></div>
+            <div id="subtab-evidence"       class="subtab-panel" hidden><!-- JS --></div>
+            <div id="subtab-hooks"          class="subtab-panel" hidden><!-- JS --></div>
+            <div id="subtab-draft"          class="subtab-panel" hidden><!-- JS --></div>
+
+          </div>
         </section>
 
-        <!-- Right: insight panel -->
-        <aside class="insight-col" id="insightPanel" hidden>
-          <!-- populated per session -->
+        <!-- Right: Creator DNA panel -->
+        <aside class="dna-col" id="dnaPanel" hidden>
+          <!-- populated by JS -->
         </aside>
 
       </div>
-    </section>
+    </div>
 
-    <!-- ── Swipe File ── -->
-    <section id="tab-swipe" class="tab" hidden>
-      <div class="panel">
-        <div class="panel-head">
-          <div>
-            <h3>Swipe File</h3>
-            <div class="muted small">Posts you explicitly saved to revisit</div>
+    <!-- ═══════════════════════════════════════════
+         VIEW: LinkedIn Import
+    ════════════════════════════════════════════ -->
+    <div id="view-linkedin" class="view" hidden>
+      <div class="import-layout">
+
+        <div class="import-hero">
+          <div class="import-hero-text">
+            <div class="eyebrow">Connect Your Voice</div>
+            <h2>Import your LinkedIn history</h2>
+            <p class="muted">Sift analyzes your past posts — performance, patterns, voice traits — and uses them to make your next recommendation more accurate.</p>
           </div>
-          <button id="wipeBtn" class="danger-btn" type="button">Wipe all data</button>
         </div>
-        <div id="savesEmpty" class="muted">No saved posts yet.</div>
-        <div id="savesList" class="saves-grid"></div>
-      </div>
-    </section>
 
-    <!-- ── Privacy ── -->
-    <section id="tab-privacy" class="tab" hidden>
-      <div class="panel prose">
+        <!-- Import methods -->
+        <div class="import-methods">
+          <div class="import-card active-card" id="pasteMethod">
+            <div class="import-card-icon">✎</div>
+            <div class="import-card-label">Paste a post</div>
+            <div class="import-card-sub">Add one post at a time with optional metrics</div>
+          </div>
+          <div class="import-card" id="csvMethod">
+            <div class="import-card-icon">⊞</div>
+            <div class="import-card-label">Upload CSV</div>
+            <div class="import-card-sub">LinkedIn analytics export or custom spreadsheet</div>
+          </div>
+          <div class="import-card" id="urlMethod">
+            <div class="import-card-icon">⊕</div>
+            <div class="import-card-label">Paste URL</div>
+            <div class="import-card-sub">Drop a LinkedIn post URL to import it</div>
+          </div>
+          <div class="import-card" id="manualMethod">
+            <div class="import-card-icon">≡</div>
+            <div class="import-card-label">Manual entry</div>
+            <div class="import-card-sub">Add metrics by hand from LinkedIn analytics</div>
+          </div>
+        </div>
+
+        <!-- Paste form -->
+        <div class="import-form" id="pasteForm">
+          <div class="form-section">
+            <label class="form-label">Post text</label>
+            <textarea id="importPostText" class="form-textarea" rows="6"
+              placeholder="Paste your LinkedIn post here…"></textarea>
+          </div>
+          <div class="form-row">
+            <div class="form-field">
+              <label class="form-label">Date</label>
+              <input id="importDate" class="form-input" type="date" />
+            </div>
+            <div class="form-field">
+              <label class="form-label">Impressions</label>
+              <input id="importImpressions" class="form-input" type="number" placeholder="e.g. 2400" />
+            </div>
+            <div class="form-field">
+              <label class="form-label">Reactions</label>
+              <input id="importReactions" class="form-input" type="number" placeholder="e.g. 142" />
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-field">
+              <label class="form-label">Comments</label>
+              <input id="importComments" class="form-input" type="number" placeholder="e.g. 31" />
+            </div>
+            <div class="form-field">
+              <label class="form-label">Reposts</label>
+              <input id="importReposts" class="form-input" type="number" placeholder="e.g. 8" />
+            </div>
+            <div class="form-field">
+              <label class="form-label">New followers</label>
+              <input id="importFollowers" class="form-input" type="number" placeholder="e.g. 12" />
+            </div>
+          </div>
+          <div class="form-actions">
+            <button class="btn-accent" id="importSubmitBtn" type="button">Analyze &amp; import</button>
+            <button class="btn-ghost" id="loadMockBtn" type="button">Load demo data</button>
+          </div>
+        </div>
+
+        <!-- Imported post list -->
+        <div id="importedSection" hidden>
+          <div class="section-divider">
+            <span class="section-label">Imported posts</span>
+          </div>
+          <div id="importedList" class="imported-list"></div>
+
+          <div class="section-divider" style="margin-top:32px;">
+            <span class="section-label">Patterns detected from your history</span>
+          </div>
+          <div id="patternsList" class="patterns-grid"></div>
+
+          <div class="section-divider" style="margin-top:32px;">
+            <span class="section-label">Voice traits from your posts</span>
+          </div>
+          <div id="voiceFromHistory" class="voice-history"></div>
+
+          <div style="margin-top:24px;">
+            <button class="btn-accent" id="generateFromHistoryBtn" type="button">
+              Generate recommendation from this history →
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════
+         VIEW: Research / Swipe File
+    ════════════════════════════════════════════ -->
+    <div id="view-research" class="view" hidden>
+      <div class="research-layout">
+
+        <div class="research-hero-text">
+          <div class="eyebrow">Research & Swipe File</div>
+          <h2>Posts worth learning from</h2>
+          <p class="muted">Sift extracts reusable patterns — not wording — from posts you save. It compares these patterns against your voice before recommending anything.</p>
+        </div>
+
+        <div class="swipe-guard">
+          <span class="guard-icon">⚠</span>
+          Sift never tells you to copy another creator. Every saved post is analyzed for its <strong>structural pattern</strong>, not its words.
+        </div>
+
+        <div id="swipeList" class="swipe-grid"></div>
+
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════
+         VIEW: Privacy
+    ════════════════════════════════════════════ -->
+    <div id="view-privacy" class="view" hidden>
+      <div class="prose-panel">
         <h2>Privacy</h2>
-        <p class="muted">Sift stores everything locally on this device. No server required.</p>
+        <p class="muted">Sift stores everything locally on this device. No server required for this version.</p>
         <ul>
           <li>Visible post text and author</li>
           <li>Dwell time per post</li>
           <li>Clicks on comments, profiles, and links</li>
           <li>Saved posts and session summaries</li>
+          <li>Imported LinkedIn post data</li>
         </ul>
-        <p class="muted">Nothing leaves your browser.</p>
+        <p class="muted">Nothing leaves your browser unless you export it.</p>
+        <button class="btn-danger" id="wipeBtn" type="button" style="margin-top:20px;">Wipe all data</button>
       </div>
-    </section>
+    </div>
 
   </main>
 
+  <script src="../core/types.js"></script>
+  <script src="../core/mock-data.js"></script>
   <script src="../core/recommendation-engine.js"></script>
+  <script src="../core/linkedin-analyzer.js"></script>
   <script src="dashboard-main.js"></script>
 </body>
 </html>
