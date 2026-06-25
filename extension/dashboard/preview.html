@@ -1,0 +1,370 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Sift — Preview (Mock Data)</title>
+  <link rel="stylesheet" href="dashboard.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <div class="logo">✦</div>
+      <div>
+        <div class="name">Sift</div>
+        <div class="tag">Turn your scrolling into research</div>
+      </div>
+    </div>
+    <nav class="tabs" aria-label="Dashboard sections">
+      <button class="active" data-tab="sessions" type="button">Command Center</button>
+      <button data-tab="swipe" type="button">Swipe File</button>
+      <button data-tab="privacy" type="button">Privacy</button>
+    </nav>
+  </header>
+
+  <main class="shell">
+    <section id="tab-sessions" class="tab">
+      <div class="cmd-grid">
+
+        <!-- Left sidebar -->
+        <aside class="sidebar-col">
+          <div class="panel session-rail">
+            <div class="panel-head">
+              <div>
+                <h3>Sessions</h3>
+                <div class="muted small">Recent research runs</div>
+              </div>
+              <button class="ghost-btn" type="button">Export</button>
+            </div>
+            <div class="session-stack">
+              <div class="session-card selected">
+                <div class="sc-date">Jun 24</div>
+                <div class="sc-meta">38m duration · 47 posts</div>
+                <div>
+                  <span class="sc-dwell">14m 32s dwell</span>
+                  <span class="sc-mode">Research</span>
+                </div>
+              </div>
+              <div class="session-card">
+                <div class="sc-date">Jun 22</div>
+                <div class="sc-meta">22m duration · 31 posts</div>
+                <div>
+                  <span class="sc-dwell">8m 10s dwell</span>
+                  <span class="sc-mode">Research</span>
+                </div>
+              </div>
+              <div class="session-card">
+                <div class="sc-date">Jun 21</div>
+                <div class="sc-meta">15m duration · 19 posts</div>
+                <div>
+                  <span class="sc-dwell">5m 44s dwell</span>
+                  <span class="sc-mode">Research</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </aside>
+
+        <!-- Center column -->
+        <section class="center-col">
+
+          <!-- Next Best Post card -->
+          <div class="nbp-card">
+            <div class="nbp-eyebrow">
+              <span class="nbp-label">Next Best Post</span>
+              <span class="confidence-chip">82% confidence</span>
+            </div>
+
+            <div class="nbp-tags">
+              <span class="tag-chip"><span class="chip-label">Format</span> First-person reflection</span>
+              <span class="tag-chip"><span class="chip-label">Topic</span> Career milestones</span>
+              <span class="tag-chip"><span class="chip-label">Angle</span> Visible result + hidden lesson</span>
+            </div>
+
+            <div class="nbp-hook">I used to think landing my first role was about the offer. What actually changed things was what happened in week three.</div>
+
+            <div class="nbp-reasons">
+              <div class="nbp-reason">
+                <div class="reason-label">Why this fits your feed</div>
+                <div class="reason-text">Personal outcome posts held your attention longest this session. You paused on 9 posts with this pattern, saved 2. Topic cluster: career milestones.</div>
+              </div>
+              <div class="nbp-reason">
+                <div class="reason-label">Why this fits your voice</div>
+                <div class="reason-text">A first-person reflection fits a reflective and self-aware voice naturally. It lets you sound specific without being over-polished or preachy.</div>
+              </div>
+            </div>
+
+            <div class="nbp-actions">
+              <button class="btn-primary" id="writePostBtn" type="button">Write this post</button>
+              <button class="btn-ghost" id="showHooksBtn" type="button">Hook starters</button>
+              <button class="btn-ghost" id="showEvidenceBtn" type="button">See evidence</button>
+              <button class="btn-ghost" type="button">Save to swipe file</button>
+            </div>
+          </div>
+
+          <!-- Why Sift thinks this -->
+          <div class="evidence-panel" id="evidenceSection">
+            <div class="section-head"><h3>Why Sift thinks this</h3></div>
+
+            <div class="section-eyebrow" style="margin-bottom:8px;">Top patterns detected</div>
+            <div class="pattern-list">
+              <div class="pattern-item">
+                <span class="p-name">Hook type: Story</span>
+                <div class="p-bar-wrap"><div class="p-bar" style="width:100%"></div></div>
+              </div>
+              <div class="pattern-item">
+                <span class="p-name">Topic: career milestones</span>
+                <div class="p-bar-wrap"><div class="p-bar" style="width:78%"></div></div>
+              </div>
+              <div class="pattern-item">
+                <span class="p-name">Tone: reflective</span>
+                <div class="p-bar-wrap"><div class="p-bar" style="width:65%"></div></div>
+              </div>
+              <div class="pattern-item">
+                <span class="p-name">Topic: lessons and reflections</span>
+                <div class="p-bar-wrap"><div class="p-bar" style="width:52%"></div></div>
+              </div>
+            </div>
+
+            <div class="section-eyebrow" style="margin-bottom:8px;">Signals that influenced this</div>
+            <div class="signal-list">
+              <div class="signal-item"><span class="sig-label">9 posts held your attention for 3+ seconds</span></div>
+              <div class="signal-item"><span class="sig-label">Top hook type: Story</span></div>
+              <div class="signal-item"><span class="sig-label">Top topic: career milestones</span></div>
+              <div class="signal-item"><span class="sig-label">Recurring terms: role, joined, learned, offer, team</span></div>
+            </div>
+
+            <div class="reasoning-box">
+              Your attention consistently favored Story posts about career milestones. This recommendation is built from your top 9 highest-engagement posts this session.
+            </div>
+          </div>
+
+          <!-- Hook Starters -->
+          <div class="hooks-panel" id="hooksSection">
+            <div class="section-head"><h3>Hook Starters</h3></div>
+            <div class="hook-cards">
+              <div class="hook-card">
+                <div class="hook-text">I used to think career milestones were about the visible result. I was wrong.</div>
+                <button class="copy-btn" type="button">Copy</button>
+              </div>
+              <div class="hook-card">
+                <div class="hook-text">The part no one talks about in career milestones: what happens after the offer.</div>
+                <button class="copy-btn" type="button">Copy</button>
+              </div>
+              <div class="hook-card">
+                <div class="hook-text">What actually changed for me after joining wasn't what I expected.</div>
+                <button class="copy-btn" type="button">Copy</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Draft Builder -->
+          <div class="draft-panel" id="draftSection">
+            <div class="section-head"><h3>Draft Builder</h3></div>
+            <div class="tone-controls">
+              <button class="btn-ghost active" data-tone="casual" type="button">More casual</button>
+              <button class="btn-ghost" data-tone="polished" type="button">More polished</button>
+              <button class="btn-ghost" data-tone="concise" type="button">More concise</button>
+              <button class="btn-ghost" data-tone="vulnerable" type="button">More vulnerable</button>
+            </div>
+            <textarea class="draft-area tone-casual" id="draftArea" spellcheck="true">I used to think career milestones were about the visible result. I was wrong.
+
+[Share what actually happened — the specific moment, number, or shift]
+
+[What you noticed or learned that surprised you]
+
+[One thing you'd tell yourself before this happened]</textarea>
+            <div class="draft-meta">
+              <span class="draft-counter" id="draftCounter">247 characters</span>
+              <button class="btn-ghost" type="button">Copy draft</button>
+            </div>
+          </div>
+
+          <!-- Evidence posts -->
+          <div class="panel" style="padding:20px;">
+            <div class="section-head" style="margin-bottom:14px;"><h3>Evidence from this session</h3></div>
+            <div class="saves-grid">
+              <div class="save-card">
+                <div class="head"><span>LINKEDIN · Sarah Chen</span><span>Score 88</span></div>
+                <span class="hook-badge">Story</span>
+                <div class="txt">I got the offer letter on a Friday. I cried in my car for 10 minutes. Not because I was happy — because I was terrified I'd somehow gotten it wrong.</div>
+                <a href="#" style="font-size:12px;">Open original →</a>
+              </div>
+              <div class="save-card">
+                <div class="head"><span>X · @marcusbuild</span><span>Score 71</span></div>
+                <span class="hook-badge">Data-led</span>
+                <div class="txt">Applied to 68 roles. Got 4 interviews. 1 offer. The math isn't discouraging — it's clarifying. You're not bad at job hunting. You're finding the 1.5%.</div>
+                <a href="#" style="font-size:12px;">Open original →</a>
+              </div>
+              <div class="save-card">
+                <div class="head"><span>LINKEDIN · Priya Mehta</span><span>Score 63</span></div>
+                <span class="hook-badge">Contrarian</span>
+                <div class="txt">Nobody tells you that the hardest part of career growth isn't getting the role. It's staying when the excitement wears off and you realize the real work starts now.</div>
+                <a href="#" style="font-size:12px;">Open original →</a>
+              </div>
+            </div>
+          </div>
+
+        </section>
+
+        <!-- Right insight panel -->
+        <aside class="insight-col">
+
+          <!-- Voice match -->
+          <div class="voice-card">
+            <div class="voice-match-ring">
+              <div class="ring-wrap">
+                <svg width="56" height="56" viewBox="0 0 56 56">
+                  <defs>
+                    <linearGradient id="ringGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                      <stop offset="0%" stop-color="#9dc0ff"/>
+                      <stop offset="100%" stop-color="#b998ff"/>
+                    </linearGradient>
+                  </defs>
+                  <circle class="ring-bg" cx="28" cy="28" r="22" fill="none" stroke-width="4"/>
+                  <circle class="ring-fill" cx="28" cy="28" r="22" fill="none" stroke-width="4"
+                    stroke-dasharray="138.2"
+                    stroke-dashoffset="24.9"
+                  />
+                </svg>
+                <div class="ring-label">82</div>
+              </div>
+              <div class="voice-match-info">
+                <div class="vm-title">Creator Voice Match</div>
+                <div class="vm-sub">Based on this session</div>
+              </div>
+            </div>
+            <div class="section-eyebrow" style="margin-bottom:8px;">Voice traits</div>
+            <div class="trait-list">
+              <div class="trait-item"><div class="trait-dot"></div><span class="trait-text">Reflective</span></div>
+              <div class="trait-item"><div class="trait-dot"></div><span class="trait-text">Self-aware</span></div>
+              <div class="trait-item"><div class="trait-dot"></div><span class="trait-text">Introspective</span></div>
+              <div class="trait-item"><div class="trait-dot"></div><span class="trait-text">Not overly polished</span></div>
+            </div>
+          </div>
+
+          <!-- Avoid -->
+          <div class="avoid-card">
+            <div class="section-head" style="margin-bottom:12px;"><h3>What to avoid</h3></div>
+            <div class="avoid-list">
+              <div class="avoid-item"><span class="avoid-x">✕</span><span>Generic LinkedIn hooks</span></div>
+              <div class="avoid-item"><span class="avoid-x">✕</span><span>Fake vulnerability</span></div>
+              <div class="avoid-item"><span class="avoid-x">✕</span><span>Over-explaining</span></div>
+              <div class="avoid-item"><span class="avoid-x">✕</span><span>Advice with no proof</span></div>
+              <div class="avoid-item"><span class="avoid-x">✕</span><span>Copying the exact structure of posts you saw</span></div>
+            </div>
+          </div>
+
+          <!-- Swipe preview -->
+          <div class="swipe-preview-card">
+            <div class="section-head" style="margin-bottom:10px;"><h3>Swipe File</h3></div>
+            <div class="swipe-mini-list">
+              <div class="swipe-mini-item">
+                <div class="swipe-mini-meta">LINKEDIN · Sarah Chen</div>
+                <div class="swipe-mini-text">I got the offer letter on a Friday. I cried in my car for 10 minutes. Not because I was happy...</div>
+              </div>
+              <div class="swipe-mini-item">
+                <div class="swipe-mini-meta">X · @marcusbuild</div>
+                <div class="swipe-mini-text">Applied to 68 roles. Got 4 interviews. 1 offer. The math isn't discouraging — it's clarifying.</div>
+              </div>
+            </div>
+            <button class="btn-ghost" style="margin-top:10px;width:100%;">View all →</button>
+          </div>
+
+        </aside>
+      </div>
+    </section>
+
+    <section id="tab-swipe" class="tab" hidden>
+      <div class="panel">
+        <div class="panel-head">
+          <div><h3>Swipe File</h3><div class="muted small">Posts you saved</div></div>
+          <button class="danger-btn" type="button">Wipe all data</button>
+        </div>
+        <div class="saves-grid">
+          <div class="save-card">
+            <div class="head"><span>LINKEDIN · Sarah Chen</span><span>Jun 24, 2:14 PM</span></div>
+            <span class="hook-badge">Story</span>
+            <div class="txt">I got the offer letter on a Friday. I cried in my car for 10 minutes. Not because I was happy — because I was terrified I'd somehow gotten it wrong.</div>
+            <a href="#" style="font-size:12px;">Open original →</a>
+          </div>
+          <div class="save-card">
+            <div class="head"><span>X · @marcusbuild</span><span>Jun 24, 1:58 PM</span></div>
+            <span class="hook-badge">Data-led</span>
+            <div class="txt">Applied to 68 roles. Got 4 interviews. 1 offer. The math isn't discouraging — it's clarifying.</div>
+            <a href="#" style="font-size:12px;">Open original →</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="tab-privacy" class="tab" hidden>
+      <div class="panel prose">
+        <h2>Privacy</h2>
+        <p class="muted">Sift stores everything locally on this device. No server required.</p>
+        <ul>
+          <li>Visible post text and author</li>
+          <li>Dwell time per post</li>
+          <li>Clicks on comments, profiles, and links</li>
+          <li>Saved posts and session summaries</li>
+        </ul>
+        <p class="muted">Nothing leaves your browser.</p>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    // Tab switching
+    document.querySelectorAll(".tabs button").forEach(btn => {
+      btn.addEventListener("click", () => {
+        document.querySelectorAll(".tabs button").forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        document.querySelectorAll(".tab").forEach(t => t.hidden = true);
+        const target = document.getElementById("tab-" + btn.dataset.tab);
+        if (target) target.hidden = false;
+      });
+    });
+
+    // Copy buttons
+    document.querySelectorAll(".copy-btn").forEach(btn => {
+      btn.addEventListener("click", e => {
+        e.stopPropagation();
+        const text = btn.closest(".hook-card").querySelector(".hook-text").textContent;
+        navigator.clipboard.writeText(text).then(() => {
+          const orig = btn.textContent;
+          btn.textContent = "Copied!";
+          btn.classList.add("copied");
+          setTimeout(() => { btn.textContent = orig; btn.classList.remove("copied"); }, 1800);
+        });
+      });
+    });
+
+    // Tone controls
+    document.querySelectorAll("[data-tone]").forEach(btn => {
+      btn.addEventListener("click", () => {
+        document.querySelectorAll("[data-tone]").forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        const area = document.getElementById("draftArea");
+        if (area) area.className = "draft-area tone-" + btn.dataset.tone;
+      });
+    });
+
+    // Draft counter
+    const draftArea = document.getElementById("draftArea");
+    const draftCounter = document.getElementById("draftCounter");
+    if (draftArea && draftCounter) {
+      draftArea.addEventListener("input", () => {
+        draftCounter.textContent = draftArea.value.length + " characters";
+      });
+    }
+
+    // Session card selection
+    document.querySelectorAll(".session-card").forEach(card => {
+      card.addEventListener("click", () => {
+        document.querySelectorAll(".session-card").forEach(c => c.classList.remove("selected"));
+        card.classList.add("selected");
+      });
+    });
+  </script>
+</body>
+</html>

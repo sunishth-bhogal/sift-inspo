@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "sift-preview",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["serve", "-p", "5173", "--no-clipboard", "/Users/sunishth.28/Sift:Inspo/extension/dashboard"],
+      "port": 5173
+    }
+  ]
+}
